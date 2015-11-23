@@ -5,4 +5,9 @@
     <string name="string_choose_password">Choose your password</string>
     <string name="string_enter_email">Enter your email</string>
     <string name="button_register">Register</string>
+    <string name="title_activity_main2">Main2Activity</string>
+    <string name="title_activity_tabbed">TabbedActivity</string>
+    <string name="title_activity_tabbedactivity">tabbedactivity</string>
+    <string name="title_activity_tabbedmain">tabbedmain</string>
+    <string name="title_activity_tab_main">tab_main</string>
 </resources>
