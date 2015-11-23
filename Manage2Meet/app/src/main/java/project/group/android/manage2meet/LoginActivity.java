@@ -26,6 +26,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private EditText passwordText, usernameText;
     private Button loginButton, registerButton;
+    public static String username;
     public static final String LOGIN_URL = "http://i.cs.hku.hk/~kasliwal/Android/login.php";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,7 +51,7 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
     private void loginUser() {
-        String username = usernameText.getText().toString().trim().toLowerCase();
+        username = usernameText.getText().toString().trim().toLowerCase();
         String password = passwordText.getText().toString().trim().toLowerCase();
 
         login(username, password);
@@ -69,8 +70,7 @@ public class LoginActivity extends AppCompatActivity {
                 super.onPostExecute(s);
                 loading.dismiss();
                 Toast.makeText(getApplicationContext(),s,Toast.LENGTH_LONG).show();
-
-                if(s=="success") {
+                if('s'==s.charAt(0)) {
                     Intent intent = new Intent(getBaseContext(), GroupDisplay.class);
                     startActivity(intent);
                 }
