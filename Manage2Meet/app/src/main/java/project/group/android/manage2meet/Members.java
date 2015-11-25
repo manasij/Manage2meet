@@ -1,8 +1,18 @@
 package project.group.android.manage2meet;
-
-
+import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.ListView;
+import android.widget.Toast;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.InputStreamReader;
@@ -12,86 +22,79 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import android.app.ProgressDialog;
-import android.os.AsyncTask;
-import android.support.v7.app.AppCompatActivity;
-import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.Toast;
+
 import javax.net.ssl.HttpsURLConnection;
 
-public class Registration extends AppCompatActivity implements View.OnClickListener{
+public class Members extends Activity {
 
-    private EditText editTextName;
-    private EditText editTextUsername;
-    private EditText editTextPassword;
-    private EditText editTextEmail;
-    private Button buttonRegister;
-    private static final String REGISTER_URL = "http://i.cs.hku.hk/~kasliwal/Android/register.php";
-
-    public void onCreate(Bundle savedInstanceState){
+    private Button addButton;
+    public static final String MEMBERLIST_URL = "http://i.cs.hku.hk/~kasliwal/Android/memberlist.php";
+    ArrayList<String> list_items = new ArrayList<>();
+    ArrayAdapter<String> memberListAdapter;
+    ListView list;
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.registration_form);
-        editTextName = (EditText) findViewById(R.id.editTextName);
-        editTextUsername = (EditText) findViewById(R.id.editTextUserName);
-        editTextPassword = (EditText) findViewById(R.id.editTextPassword);
-        editTextEmail = (EditText) findViewById(R.id.editTextEmail);
-        buttonRegister = (Button) findViewById(R.id.buttonRegister);
-        buttonRegister.setOnClickListener(this);
-    }
-    public void onClick(View v) {
-        if(v == buttonRegister){
-            registerUser();
-        }
-    }
-    private void registerUser() {
-        String name = editTextName.getText().toString().trim().toLowerCase();
-        String username = editTextUsername.getText().toString().trim().toLowerCase();
-        String password = editTextPassword.getText().toString().trim().toLowerCase();
-        String email = editTextEmail.getText().toString().trim().toLowerCase();
+        setContentView(R.layout.member_layout);
+        displayList();
+        addButton = (Button) findViewById(R.id.addMember);
+        addButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getBaseContext(), MembersForm.class);
+                startActivity(intent);
+            }
+        });
+        memberListAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, list_items);
 
-        register(name,username,password,email);
     }
-    private void register(String name, String username, String password, String email) {
-        class RegisterUser extends AsyncTask<String, Void, String>{
+    private void displayList() {
+        create(GroupDisplay.group_name);
+    }
+    private void create(String username) {
+        class Member extends AsyncTask<String, Void, String> {
             ProgressDialog loading;
             @Override
             protected void onPreExecute() {
                 super.onPreExecute();
-                loading = ProgressDialog.show(Registration.this, "Please Wait",null, true, true);
+                loading = ProgressDialog.show(Members.this, "Please Wait",null, true, true);
             }
 
-            @Override
+            String message;
             protected void onPostExecute(String s) {
                 super.onPostExecute(s);
                 loading.dismiss();
                 Toast.makeText(getApplicationContext(),s,Toast.LENGTH_LONG).show();
-                if('s'==s.charAt(0)) {
-                    Intent intent = new Intent(getBaseContext(), LoginActivity.class);
-                    startActivity(intent);
+                try{
+                    JSONObject jsonObject = new JSONObject(s);
+                    JSONArray jsonArray = jsonObject.getJSONArray("Members");
+                    for(int i=0; i<jsonArray.length(); i++){
+                        JSONObject jobject = jsonArray.getJSONObject(i);
+                        message = jobject.getString("username");
+                        list_items.add(message);
+                    }
+                } catch (Exception e){
+                    e.printStackTrace();
                 }
+                list = (ListView) findViewById(R.id.listView);
+                list.setAdapter(memberListAdapter);
             }
 
             @Override
             protected String doInBackground(String... params) {
 
                 HashMap<String, String> data = new HashMap();
-                data.put("name",params[0]);
-                data.put("username",params[1]);
-                data.put("password",params[2]);
-                data.put("email",params[3]);
-
-                String result = sendPostRequest(REGISTER_URL,data);
+                data.put("username",params[0]);
+                String result = sendPostRequest(MEMBERLIST_URL, data);
 
                 return  result;
             }
         }
 
-        RegisterUser ru = new RegisterUser();
-        ru.execute(name, username, password, email);
+        Member user = new Member();
+        user.execute(username);
     }
     public String sendPostRequest(String requestURL,
                                   HashMap<String, String> postDataParams) {
