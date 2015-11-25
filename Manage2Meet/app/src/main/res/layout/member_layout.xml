@@ -1,23 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:weightSum="1"
-    android:visibility="visible">
-
-    <TextView
-        android:layout_width="316dp"
-        android:layout_height="wrap_content"
-        android:text="Welcome"
-        android:id="@+id/groupDisplayTitle"
-        android:textStyle="bold"
-        android:textSize="50dp" />
+    android:layout_height="match_parent">
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Create a group"
-        android:id="@+id/addGroup" />
+        android:text="Add Member"
+        android:id="@+id/addMember" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="List of Members:"
+        android:id="@+id/enterName"
+        android:textStyle="bold"
+        android:textSize="20dp" />
 
     <ListView
         android:layout_width="match_parent"

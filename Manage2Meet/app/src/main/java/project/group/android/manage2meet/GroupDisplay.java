@@ -6,11 +6,12 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.Toast;
-
+import android.widget.ListView;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.InputStreamReader;
@@ -20,47 +21,50 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
 
-public class GroupDisplay extends Activity{
+public class GroupDisplay extends Activity {
 
-    private Button createButton,addButton;
-    private EditText groupNameField;
-    private LinearLayout addLayout;
-    public static final String GROUP_URL = "http://i.cs.hku.hk/~kasliwal/Android/group.php";
-
-    public void onCreate(Bundle savedInstanceState){
+    public static String group_name;
+    private Button addButton;
+    public static final String GROUPLIST_URL = "http://i.cs.hku.hk/~kasliwal/Android/grouplist.php";
+    ArrayList<String> list_items = new ArrayList<>();
+    ArrayAdapter<String> groupListAdapter;
+    ListView list;
+    AdapterView.OnItemClickListener goToGroup;
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.list_groups);
-        createButton = (Button) findViewById(R.id.createGroup);
+        displayList();
         addButton = (Button) findViewById(R.id.addGroup);
-        groupNameField = (EditText) findViewById(R.id.groupname);
-        addLayout = (LinearLayout) findViewById(R.id.add);
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                createButton.setVisibility(View.VISIBLE);
-                addLayout.setVisibility(View.VISIBLE);
+                Intent intent = new Intent(getBaseContext(), GroupForm.class);
+                startActivity(intent);
             }
         });
-        createButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                createGroup();
-                groupNameField.setText("");
-                createButton.setVisibility(View.INVISIBLE);
-                addLayout.setVisibility(View.INVISIBLE);
-            }
-        });
+        groupListAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, list_items);
+        goToGroup = new AdapterView.OnItemClickListener() {
+                    public void onItemClick(AdapterView parent,
+                                            View v,
+                                            int position,
+                                            long id) {
+                        group_name = list_items.get(position);
+                        //Intent intent = new Intent(getBaseContext(), GroupPage.class);
+                        //startActivity(intent);
+                    }
+        };
+
     }
-    private void createGroup() {
-        String group_name = groupNameField.getText().toString().trim().toLowerCase();
-        create(group_name, LoginActivity.username);
+    private void displayList() {
+        create(LoginActivity.username);
     }
-    private void create(String group_name, String admin) {
+    private void create(String username) {
         class Groups extends AsyncTask<String, Void, String> {
             ProgressDialog loading;
             @Override
@@ -69,32 +73,39 @@ public class GroupDisplay extends Activity{
                 loading = ProgressDialog.show(GroupDisplay.this, "Please Wait",null, true, true);
             }
 
-            @Override
+            String message;
             protected void onPostExecute(String s) {
                 super.onPostExecute(s);
                 loading.dismiss();
-                Toast.makeText(getApplicationContext(), s, Toast.LENGTH_LONG).show();
-                if('s'==s.charAt(0)) {
-                    Intent intent = new Intent(getBaseContext(), GroupDisplay.class);
-                    startActivity(intent);
+                try{
+                    JSONObject jsonObject = new JSONObject(s);
+                    JSONArray jsonArray = jsonObject.getJSONArray("Groups");
+                    for(int i=0; i<jsonArray.length(); i++){
+                        JSONObject jobject = jsonArray.getJSONObject(i);
+                        message = jobject.getString("group_name");
+                        list_items.add(message);
+                    }
+                } catch (Exception e){
+                    e.printStackTrace();
                 }
+                list = (ListView) findViewById(R.id.listView);
+                list.setAdapter(groupListAdapter);
+                list.setOnItemClickListener(goToGroup);
             }
 
             @Override
             protected String doInBackground(String... params) {
 
                 HashMap<String, String> data = new HashMap();
-                data.put("group_name",params[0]);
-                data.put("admin",params[1]);
-
-                String result = sendPostRequest(GROUP_URL, data);
+                data.put("username",params[0]);
+                String result = sendPostRequest(GROUPLIST_URL, data);
 
                 return  result;
             }
         }
 
         Groups user = new Groups();
-        user.execute(group_name, admin);
+        user.execute(username);
     }
     public String sendPostRequest(String requestURL,
                                   HashMap<String, String> postDataParams) {

@@ -1,11 +1,13 @@
 package project.group.android.manage2meet;
 
-import java.util.HashMap;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+
+import java.util.HashMap;
+
+/*OPTIONAL class. Not implemented yet...*/
 
 public class MainActivity {
     // Shared Preferences

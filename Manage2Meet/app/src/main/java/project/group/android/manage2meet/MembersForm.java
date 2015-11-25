@@ -1,8 +1,15 @@
 package project.group.android.manage2meet;
 
-
+import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.InputStreamReader;
@@ -14,63 +21,47 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
-import android.app.ProgressDialog;
-import android.os.AsyncTask;
-import android.support.v7.app.AppCompatActivity;
-import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.Toast;
+
 import javax.net.ssl.HttpsURLConnection;
 
-public class Registration extends AppCompatActivity implements View.OnClickListener{
-
-    private EditText editTextName;
-    private EditText editTextUsername;
-    private EditText editTextPassword;
-    private EditText editTextEmail;
-    private Button buttonRegister;
-    private static final String REGISTER_URL = "http://i.cs.hku.hk/~kasliwal/Android/register.php";
+public class MembersForm extends Activity {
+    private Button add;
+    private EditText usernameField;
+    public static final String MEMBER_FORM = "http://i.cs.hku.hk/~kasliwal/Android/member.php";
 
     public void onCreate(Bundle savedInstanceState){
+        Toast.makeText(this,"form created",Toast.LENGTH_SHORT).show();
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.registration_form);
-        editTextName = (EditText) findViewById(R.id.editTextName);
-        editTextUsername = (EditText) findViewById(R.id.editTextUserName);
-        editTextPassword = (EditText) findViewById(R.id.editTextPassword);
-        editTextEmail = (EditText) findViewById(R.id.editTextEmail);
-        buttonRegister = (Button) findViewById(R.id.buttonRegister);
-        buttonRegister.setOnClickListener(this);
+        setContentView(R.layout.member_form_layout);
+        add = (Button) findViewById(R.id.add);
+        usernameField = (EditText) findViewById(R.id.usernameField);
+        add.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                createGroup();
+            }
+        });
     }
-    public void onClick(View v) {
-        if(v == buttonRegister){
-            registerUser();
-        }
+    private void createGroup() {
+        String username = usernameField.getText().toString().trim().toLowerCase();
+        create(username);
     }
-    private void registerUser() {
-        String name = editTextName.getText().toString().trim().toLowerCase();
-        String username = editTextUsername.getText().toString().trim().toLowerCase();
-        String password = editTextPassword.getText().toString().trim().toLowerCase();
-        String email = editTextEmail.getText().toString().trim().toLowerCase();
-
-        register(name,username,password,email);
-    }
-    private void register(String name, String username, String password, String email) {
-        class RegisterUser extends AsyncTask<String, Void, String>{
+    private void create(String username) {
+        class Groups extends AsyncTask<String, Void, String> {
             ProgressDialog loading;
             @Override
             protected void onPreExecute() {
                 super.onPreExecute();
-                loading = ProgressDialog.show(Registration.this, "Please Wait",null, true, true);
+                loading = ProgressDialog.show(MembersForm.this, "Please Wait",null, true, true);
             }
 
             @Override
             protected void onPostExecute(String s) {
                 super.onPostExecute(s);
                 loading.dismiss();
-                Toast.makeText(getApplicationContext(),s,Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), s, Toast.LENGTH_LONG).show();
                 if('s'==s.charAt(0)) {
-                    Intent intent = new Intent(getBaseContext(), LoginActivity.class);
+                    Intent intent = new Intent(getBaseContext(), Members.class);
                     startActivity(intent);
                 }
             }
@@ -79,19 +70,15 @@ public class Registration extends AppCompatActivity implements View.OnClickListe
             protected String doInBackground(String... params) {
 
                 HashMap<String, String> data = new HashMap();
-                data.put("name",params[0]);
-                data.put("username",params[1]);
-                data.put("password",params[2]);
-                data.put("email",params[3]);
-
-                String result = sendPostRequest(REGISTER_URL,data);
+                data.put("username",params[0]);
+                String result = sendPostRequest(MEMBER_FORM, data);
 
                 return  result;
             }
         }
 
-        RegisterUser ru = new RegisterUser();
-        ru.execute(name, username, password, email);
+        Groups user = new Groups();
+        user.execute(username);
     }
     public String sendPostRequest(String requestURL,
                                   HashMap<String, String> postDataParams) {
