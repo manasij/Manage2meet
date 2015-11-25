@@ -53,7 +53,7 @@ public class Members extends Activity {
     private void displayList() {
         create(GroupDisplay.group_name);
     }
-    private void create(String username) {
+    private void create(String group_name) {
         class Member extends AsyncTask<String, Void, String> {
             ProgressDialog loading;
             @Override
@@ -86,7 +86,7 @@ public class Members extends Activity {
             protected String doInBackground(String... params) {
 
                 HashMap<String, String> data = new HashMap();
-                data.put("username",params[0]);
+                data.put("group_name",params[0]);
                 String result = sendPostRequest(MEMBERLIST_URL, data);
 
                 return  result;
@@ -94,7 +94,7 @@ public class Members extends Activity {
         }
 
         Member user = new Member();
-        user.execute(username);
+        user.execute(group_name);
     }
     public String sendPostRequest(String requestURL,
                                   HashMap<String, String> postDataParams) {
@@ -115,6 +115,7 @@ public class Members extends Activity {
             OutputStream os = conn.getOutputStream();
             BufferedWriter writer = new BufferedWriter(
                     new OutputStreamWriter(os, "UTF-8"));
+            Toast.makeText(this,""+getPostDataString(postDataParams),Toast.LENGTH_SHORT).show();
             writer.write(getPostDataString(postDataParams));
 
             writer.flush();

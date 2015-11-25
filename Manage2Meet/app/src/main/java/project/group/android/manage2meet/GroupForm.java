@@ -61,7 +61,7 @@ public class GroupForm extends Activity {
                 loading.dismiss();
                 Toast.makeText(getApplicationContext(), s, Toast.LENGTH_LONG).show();
                 if('s'==s.charAt(0)) {
-                    Intent intent = new Intent(getBaseContext(), GroupDisplay.class);
+                    Intent intent = new Intent(getBaseContext(), tab_main.class);
                     startActivity(intent);
                 }
             }

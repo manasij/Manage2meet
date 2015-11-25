@@ -1,19 +1,15 @@
 package project.group.android.manage2meet;
 
+
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.ListFragment;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.ListView;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
+import android.widget.EditText;
+import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -24,80 +20,81 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
 
-public class TabFragment2 extends ListFragment {
+public class ToDoForm extends Activity{
 
-    private Button addButton;
-    public static final String MEMBERLIST_URL = "http://i.cs.hku.hk/~kasliwal/Android/memberlist.php";
-    ArrayList<String> list_items = new ArrayList<>();
-    ArrayAdapter<String> memberListAdapter;
-    ListView list;
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View v=inflater.inflate(R.layout.fragment_tab_fragment2, container, false);
-        displayList();
-        addButton = (Button)v.findViewById(R.id.addMember);
-        addButton.setOnClickListener(new View.OnClickListener() {
+
+    private Button add;
+    private EditText todoField,deadlineField,memberField,statusField;
+    //TODO_FORM
+    public static final String TODO_FORM = "http://i.cs.hku.hk/~kasliwal/Android/todo.php";
+
+    public void onCreate(Bundle savedInstanceState){
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.todo_form_layout);
+        add = (Button) findViewById(R.id.add);
+        todoField = (EditText) findViewById(R.id.todoEdit);
+        deadlineField = (EditText) findViewById(R.id.deadlineEdit);
+        memberField = (EditText) findViewById(R.id.memberEdit);
+        statusField = (EditText) findViewById(R.id.statusEdit);
+
+        add.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getActivity(), MembersForm.class);
-                startActivity(intent);
+                createToDo();
             }
         });
-        memberListAdapter = new ArrayAdapter<String>(v.getContext(), android.R.layout.simple_list_item_1, list_items);
-        setListAdapter(memberListAdapter);
-        return v;
     }
-    private void displayList() {
-        create(GroupDisplay.group_name);
+    private void createToDo() {
+
+        create(todoField.getText().toString().trim().toLowerCase(),
+                deadlineField.getText().toString().trim(),
+                    memberField.getText().toString().trim().toLowerCase(),
+                         statusField.getText().toString().trim().toLowerCase());
     }
-    private void create(String group_name) {
-        class Member extends AsyncTask<String, Void, String> {
+
+
+    private void create(String todo, String deadline, String member,String status) {
+        class Groups extends AsyncTask<String, Void, String> {
             ProgressDialog loading;
             @Override
             protected void onPreExecute() {
                 super.onPreExecute();
-                loading = ProgressDialog.show(getActivity(), "Please Wait",null, true, true);
+                loading = ProgressDialog.show(ToDoForm.this, "Please Wait",null, true, true);
             }
 
-            String message;
+            @Override
             protected void onPostExecute(String s) {
                 super.onPostExecute(s);
                 loading.dismiss();
-                try{
-                    JSONObject jsonObject = new JSONObject(s);
-                    JSONArray jsonArray = jsonObject.getJSONArray("Members");
-                    for(int i=0; i<jsonArray.length(); i++){
-                        JSONObject jobject = jsonArray.getJSONObject(i);
-                        message = jobject.getString("username");
-                        list_items.add(message);
-
-                    }
-                } catch (Exception e){
-                    e.printStackTrace();
+                Toast.makeText(getApplicationContext(), s, Toast.LENGTH_LONG).show();
+                if('s'==s.charAt(0)) {
+                    Intent intent = new Intent(getBaseContext(), tab_main.class);
+                    startActivity(intent);
                 }
-                memberListAdapter.notifyDataSetChanged();
-
             }
 
             @Override
             protected String doInBackground(String... params) {
 
                 HashMap<String, String> data = new HashMap();
-                data.put("group_name",params[0]);
-                String result = sendPostRequest(MEMBERLIST_URL, data);
+                data.put("todoField",params[0]);
+                data.put("deadlineField",params[1]);
+                data.put("memberField",params[2]);
+                data.put("statusField",params[3]);
+                String result = sendPostRequest(TODO_FORM, data);
 
                 return  result;
             }
-        }
+        }//end of Async Task
 
-        Member user = new Member();
-        user.execute(group_name);
+        //Groups class extends AsyncTask
+        Groups user = new Groups();
+        user.execute(todo,deadline,member,status);
     }
     public String sendPostRequest(String requestURL,
                                   HashMap<String, String> postDataParams) {
@@ -155,4 +152,7 @@ public class TabFragment2 extends ListFragment {
 
         return result.toString();
     }
-}
+
+
+
+}//end of ToDoForm

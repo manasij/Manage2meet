@@ -1,5 +1,7 @@
 package project.group.android.manage2meet;
 
+import android.app.DialogFragment;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.PagerAdapter;
@@ -7,13 +9,16 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.view.View;
 
 public class tab_main extends AppCompatActivity {
+    public static String group_name;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tab_main);
+        group_name=GroupDisplay.group_name;
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -59,4 +64,22 @@ public class tab_main extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    public void showDatePickerDialog(View v)
+    {
+        //Toast.makeText(this, "Clicked on Button", Toast.LENGTH_LONG).show();
+        DialogFragment newFragment = new DatePickerFragment();
+        newFragment.show(getFragmentManager(), "datePicker");
+
+    }
+    public void showTimePickerDialog(View v) {
+        DialogFragment newFragment = new TimePickerFragment();
+        newFragment.show(getFragmentManager(), "timePicker");
+    }
+    public void addToDo(View v){
+        Intent intent = new Intent(this, ToDoList.class);
+
+        startActivity(intent);
+
+
+    }
 }

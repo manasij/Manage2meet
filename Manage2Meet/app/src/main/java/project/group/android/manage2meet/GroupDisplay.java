@@ -55,8 +55,8 @@ public class GroupDisplay extends Activity {
                                             int position,
                                             long id) {
                         group_name = list_items.get(position);
-                        //Intent intent = new Intent(getBaseContext(), GroupPage.class);
-                        //startActivity(intent);
+                        Intent intent = new Intent(getBaseContext(), tab_main.class);
+                        startActivity(intent);
                     }
         };
 

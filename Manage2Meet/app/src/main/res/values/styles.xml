@@ -1,17 +1,26 @@
 <resources>
 
-    <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <!-- Customize your theme here. -->
-    </style>
-
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
 
+
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <!--   your app branding color for the app bar -->
+        <item name="colorPrimary">#FFF2F2F2</item>
+        <!--   darker variant for the status bar and contextual app bars -->
+    </style>
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+    <color name="black">#FF000000</color>
+    <color name="whitegrey">#FFF2F2F2</color>
+
+    <style name="dialog_light" parent="@android:style/Theme.Dialog">
+        <item name="@android:windowBackground">@color/whitegrey</item>
+        <item name="@android:textColor">@color/black</item>
+    </style>
 
 </resources>

@@ -26,11 +26,10 @@ import javax.net.ssl.HttpsURLConnection;
 
 public class MembersForm extends Activity {
     private Button add;
-    private EditText usernameField;
+    public EditText usernameField;
     public static final String MEMBER_FORM = "http://i.cs.hku.hk/~kasliwal/Android/member.php";
 
     public void onCreate(Bundle savedInstanceState){
-        Toast.makeText(this,"form created",Toast.LENGTH_SHORT).show();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.member_form_layout);
         add = (Button) findViewById(R.id.add);
@@ -38,16 +37,16 @@ public class MembersForm extends Activity {
         add.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                createGroup();
+                addMember();
             }
         });
     }
-    private void createGroup() {
+    private void addMember() {
         String username = usernameField.getText().toString().trim().toLowerCase();
-        create(username);
+        create(username, tab_main.group_name);
     }
-    private void create(String username) {
-        class Groups extends AsyncTask<String, Void, String> {
+    private void create(String username, String group_name) {
+        class MembersClass extends AsyncTask<String, Void, String> {
             ProgressDialog loading;
             @Override
             protected void onPreExecute() {
@@ -61,7 +60,7 @@ public class MembersForm extends Activity {
                 loading.dismiss();
                 Toast.makeText(getApplicationContext(), s, Toast.LENGTH_LONG).show();
                 if('s'==s.charAt(0)) {
-                    Intent intent = new Intent(getBaseContext(), Members.class);
+                    Intent intent = new Intent(getBaseContext(), tab_main.class);
                     startActivity(intent);
                 }
             }
@@ -70,15 +69,16 @@ public class MembersForm extends Activity {
             protected String doInBackground(String... params) {
 
                 HashMap<String, String> data = new HashMap();
-                data.put("username",params[0]);
+                data.put("username", params[0]);
+                data.put("group_name", params[1]);
                 String result = sendPostRequest(MEMBER_FORM, data);
 
                 return  result;
             }
         }
 
-        Groups user = new Groups();
-        user.execute(username);
+        MembersClass user = new MembersClass();
+        user.execute(username, group_name);
     }
     public String sendPostRequest(String requestURL,
                                   HashMap<String, String> postDataParams) {
